@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Restaurant Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0e0c;color:#f5f0e8;font-family:Georgia,serif;min-height:100vh;padding-bottom:80px}
+input,select,button{font-family:inherit}
+.header{background:linear-gradient(135deg,#1a1208,#0f0e0c);border-bottom:1px solid #3a2e1a;padding:28px 24px 20px;text-align:center}
+.header-sub{font-size:12px;letter-spacing:.3em;color:#b8860b;text-transform:uppercase;margin-bottom:8px}
+.header h1{font-size:clamp(22px,5vw,36px);font-weight:400;color:#f5f0e8;letter-spacing:.05em}
+.header-line{width:60px;height:2px;background:#b8860b;margin:12px auto 8px}
+.sync-status{font-size:11px;margin-top:4px;color:#5a4e3a}
+.nav{display:flex;border:1px solid #3a2e1a;border-radius:10px;overflow:hidden;margin:20px 0}
+.nav button{flex:1;padding:12px 0;border:none;cursor:pointer;font-family:inherit;font-size:11px;background:0;color:#c8b88a;transition:all .2s}
+.nav button.active{background:#b8860b;color:#0f0e0c;font-weight:700}
+.container{max-width:780px;margin:0 auto;padding:0 16px}
+.form-card{background:#1a1510;border:1px solid #3a2e1a;border-radius:14px;padding:28px 24px;margin-bottom:32px}
+.form-title{font-size:17px;font-weight:400;color:#b8860b;margin-bottom:24px}
+.form-subtitle{font-size:13px;color:#5a4e3a;margin-bottom:24px}
+label.field-label{display:block;font-size:11px;color:#8a7a5a;letter-spacing:.12em;margin-bottom:6px;text-transform:uppercase}
+.field{margin-bottom:16px}
+input[type=text],input[type=number],input[type=date],select{width:100%;background:#0f0e0c;border:1px solid #3a2e1a;border-radius:8px;padding:10px 14px;color:#f5f0e8;font-family:inherit;font-size:14px;outline:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.preview{background:#0f0e0c;border:1px solid #3a2e1a;border-radius:10px;padding:16px 20px;margin-bottom:20px}
+.preview-label{font-size:11px;color:#8a7a5a;letter-spacing:.15em;margin-bottom:6px}
+.preview-value{font-size:22px;font-weight:700}
+.btn-row{display:flex;gap:12px}
+.btn-primary{flex:1;padding:13px 0;background:#b8860b;color:#0f0e0c;border:0;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer}
+.btn-secondary{padding:13px 20px;background:0;color:#c8b88a;border:1px solid #3a2e1a;border-radius:8px;font-size:14px;cursor:pointer}
+.btn-edit{padding:5px 12px;background:0;color:#b8860b;border:1px solid #b8860b;border-radius:6px;cursor:pointer;font-size:12px}
+.btn-del{padding:5px 12px;background:0;color:#f87171;border:1px solid #f87171;border-radius:6px;cursor:pointer;font-size:12px}
+.section-title{font-size:13px;color:#b8860b;letter-spacing:.1em;margin-bottom:12px}
+.card{background:#1a1510;border:1px solid #3a2e1a;border-radius:12px;padding:16px 20px;margin-bottom:10px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.card-date{font-size:15px;color:#f5f0e8}
+.card-btns{display:flex;gap:8px}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.mini-card{background:#0f0e0c;border:1px solid #2a2018;border-radius:8px;padding:10px 12px}
+.mini-label{font-size:10px;color:#8a7a5a;letter-spacing:.1em;margin-bottom:4px}
+.mini-value{font-size:15px;font-weight:700}
+.list-item{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.list-item-name{font-size:15px;color:#f5f0e8;margin-bottom:4px}
+.list-item-date{font-size:12px;color:#8a7a5a}
+.list-item-right{display:flex;align-items:center;gap:12px}
+.list-amount{font-size:18px;font-weight:700}
+.empty{text-align:center;color:#5a4e3a;padding:36px 0;border:1px dashed #3a2e1a;border-radius:12px;margin-bottom:24px}
+.month-picker{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.month-picker select{flex:1;min-width:140px;cursor:pointer}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.summary-card{background:#1a1510;border:1px solid #3a2e1a;border-radius:12px;padding:18px 14px;text-align:center}
+.summary-icon{font-size:22px;margin-bottom:6px}
+.summary-label{font-size:10px;color:#8a7a5a;letter-spacing:.12em;margin-bottom:6px}
+.summary-value{font-size:clamp(14px,3.5vw,22px);font-weight:700}
+.profit-box{border-radius:14px;padding:24px;text-align:center;margin-bottom:28px}
+.profit-label{font-size:12px;letter-spacing:.2em;color:#8a7a5a;margin-bottom:8px}
+.profit-value{font-size:clamp(28px,7vw,48px);font-weight:700}
+.profit-formula{margin-top:10px;font-size:12px;color:#8a7a5a}
+.table-wrap{overflow-x:auto;margin-bottom:28px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{padding:10px;text-align:left;color:#8a7a5a;font-weight:400;font-size:11px;letter-spacing:.08em;white-space:nowrap;border-bottom:1px solid #3a2e1a}
+td{padding:10px;border-bottom:1px solid #2a2018}
+tr:nth-child(even) td{background:#1a1510}
+tfoot td{border-top:2px solid #b8860b;border-bottom:0;font-weight:700;padding:12px 10px}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="header-sub">Restaurant Management</div>
+<h1>Sales & Profit Tracker</h1>
+<div class="header-line"></div>
+<div class="sync-status">✓ Local Storage</div>
+</div>
+
+<div class="container">
+<div class="nav">
+<button class="active" onclick="showTab('log')">📋 Daily</button>
+<button onclick="showTab('exp')">💸 Add. Expenses</button>
+<button onclick="showTab('inc')">💰 Add. Income</button>
+<button onclick="showTab('report')">📊 Monthly</button>
+</div>
+
+<div id="tab-log">
+<div class="form-card">
+<div class="form-title">➕ Log Today</div>
+<input type="hidden" id="editId"/>
+<div class="field"><label class="field-label">Date</label><input type="date" id="logDate"/></div>
+<div class="grid2">
+<div><label class="field-label">Total Cash (KD)</label><input type="number" min="0" id="logCash"/></div>
+<div><label class="field-label">Expenses (KD)</label><input type="number" min="0" id="logExp"/></div>
+</div>
+<div class="field"><label class="field-label">Members (optional)</label><input type="number" min="0" id="logMem"/></div>
+<div class="preview" id="preview" style="display:none">
+<div class="preview-label">Sales</div>
+<div class="preview-value" id="previewVal"></div>
+</div>
+<div class="btn-row">
+<button class="btn-primary" onclick="saveEntry()">Save</button>
+<button class="btn-secondary" id="cancelBtn" style="display:none" onclick="cancelEdit()">Cancel</button>
+</div>
+</div>
+<div class="section-title" id="entriesTitle">All Entries (0)</div>
+<div id="entriesList"></div>
+</div>
+
+<div id="tab-exp" style="display:none">
+<div class="form-card">
+<div class="form-title">➕ Add Additional Expense</div>
+<p class="form-subtitle">Rent, equipment, repairs, or one-time costs</p>
+<input type="hidden" id="editExpId"/>
+<div class="field"><label class="field-label">Date</label><input type="date" id="expDate"/></div>
+<div class="field"><label class="field-label">Description</label><input type="text" placeholder="e.g. Monthly Rent" id="expDesc"/></div>
+<div class="field"><label class="field-label">Amount (KD)</label><input type="number" min="0" id="expAmt"/></div>
+<div class="btn-row">
+<button class="btn-primary" onclick="saveExp()">Save</button>
+<button class="btn-secondary" id="cancelExpBtn" style="display:none" onclick="cancelExpEdit()">Cancel</button>
+</div>
+</div>
+<div class="section-title" id="expTitle">All Additional Expenses (0)</div>
+<div id="expList"></div>
+</div>
+
+<div id="tab-inc" style="display:none">
+<div class="form-card">
+<div class="form-title">➕ Add Income</div>
+<p class="form-subtitle">Keeta, online orders, or outside income</p>
+<input type="hidden" id="editIncId"/>
+<div class="field"><label class="field-label">Date</label><input type="date" id="incDate"/></div>
+<div class="field"><label class="field-label">Description</label><input type="text" placeholder="e.g. Keeta Week 1" id="incDesc"/></div>
+<div class="field"><label class="field-label">Amount (KD)</label><input type="number" min="0" id="incAmt"/></div>
+<div class="btn-row">
+<button class="btn-primary" onclick="saveInc()">Save</button>
+<button class="btn-secondary" id="cancelIncBtn" style="display:none" onclick="cancelIncEdit()">Cancel</button>
+</div>
+</div>
+<div class="section-title" id="incTitle">All Additional Income (0)</div>
+<div id="incList"></div>
+</div>
+
+<div id="tab-report" style="display:none">
+<div class="month-picker">
+<select id="month" onchange="renderReport()"></select>
+<select id="year" onchange="renderReport()"></select>
+</div>
+<div id="report"></div>
+</div>
+
+</div>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const today=new Date().toISOString().split('T')[0];
+let entries=[],addExpenses=[],addIncome=[];
+
+function fmt(n){const num=Number(n||0);return(num<0?'-KD ':'KD ')+Math.abs(num).toLocaleString('en-US',{minimumFractionDigits:3,maximumFractionDigits:3})}
+function fdate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
+function calc(tc,exp,mem){tc=Number(tc||0);exp=Number(exp||0);mem=Number(mem||0);return{cash:tc-mem,sales:(tc-mem)+exp}}
+
+async function load(){try{const r=await fetch('/api/data');if(r.ok){const data=await r.json();entries=data.entries||[];addExpenses=data.addExpenses||[];addIncome=data.addIncome||[]}else{loadLocal()}}catch(e){loadLocal()}}
+function loadLocal(){try{const data=localStorage.getItem('restaurantData');if(data){const parsed=JSON.parse(data);entries=parsed.entries||[];addExpenses=parsed.addExpenses||[];addIncome=parsed.addIncome||[]}}catch(e){}}
+async function save(){try{await fetch('/api/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entries,addExpenses,addIncome})})}catch(e){saveLocal()}}
+function saveLocal(){try{localStorage.setItem('restaurantData',JSON.stringify({entries,addExpenses,addIncome}))}catch(e){}}
+function showTab(name){['log','exp','inc','report'].forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'block':'none');document.querySelectorAll('.nav button').forEach((b,i)=>{b.className=(['log','exp','inc','report'][i]===name?'active':'')});if(name==='report')renderReport()}
+
+document.getElementById('logDate').value=today;
+document.getElementById('expDate').value=today;
+document.getElementById('incDate').value=today;
+
+['logCash','logExp','logMem'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{const c=calc(document.getElementById('logCash').value,document.getElementById('logExp').value,document.getElementById('logMem').value);const p=document.getElementById('preview');if(document.getElementById('logCash').value||document.getElementById('logExp').value){document.getElementById('previewVal').textContent=fmt(c.sales);document.getElementById('previewVal').style.color=c.sales>=0?'#4ade80':'#f87171';p.style.display='block'}else p.style.display='none'}));
+
+function saveEntry(){const date=document.getElementById('logDate').value;const tc=document.getElementById('logCash').value;const exp=document.getElementById('logExp').value;const mem=document.getElementById('logMem').value;const editId=document.getElementById('editId').value;if(!date||!tc||!exp){alert('Fill date, cash, expenses');return}const c=calc(tc,exp,mem);const entry={id:editId||Date.now().toString(),date,totalCash:Number(tc),expenses:Number(exp),members:Number(mem)||0,sales:c.sales};if(editId)entries=entries.map(e=>e.id===editId?entry:e);else entries.push(entry);save();cancelEdit();renderEntry()}
+function editEntry(id){const e=entries.find(x=>x.id===id);document.getElementById('editId').value=id;document.getElementById('logDate').value=e.date;document.getElementById('logCash').value=e.totalCash;document.getElementById('logExp').value=e.expenses;document.getElementById('logMem').value=e.members||'';document.getElementById('cancelBtn').style.display='';updatePreview()}
+function deleteEntry(id){entries=entries.filter(e=>e.id!==id);save();renderEntry()}
+function cancelEdit(){document.getElementById('editId').value='';document.getElementById('logDate').value=today;document.getElementById('logCash').value='';document.getElementById('logExp').value='';document.getElementById('logMem').value='';document.getElementById('cancelBtn').style.display='none';document.getElementById('preview').style.display='none'}
+function updatePreview(){const c=calc(document.getElementById('logCash').value,document.getElementById('logExp').value,document.getElementById('logMem').value);const p=document.getElementById('preview');if(document.getElementById('logCash').value||document.getElementById('logExp').value){document.getElementById('previewVal').textContent=fmt(c.sales);document.getElementById('previewVal').style.color=c.sales>=0?'#4ade80':'#f87171';p.style.display='block'}else p.style.display='none'}
+function renderEntry(){const sorted=[...entries].sort((a,b)=>new Date(b.date)-new Date(a.date));document.getElementById('entriesTitle').textContent=`All Entries (${sorted.length})`;const el=document.getElementById('entriesList');if(!sorted.length){el.innerHTML='<div class="empty">No entries yet</div>';return}el.innerHTML=sorted.map(e=>`<div class="card"><div class="card-header"><div class="card-date">${fdate(e.date)}</div><div class="card-btns"><button class="btn-edit" onclick="editEntry('${e.id}')">Edit</button><button class="btn-del" onclick="deleteEntry('${e.id}')">Delete</button></div></div><div class="mini-grid"><div class="mini-card"><div class="mini-label">CASH</div><div class="mini-value" style="color:#c8b88a">${fmt(e.totalCash)}</div></div><div class="mini-card"><div class="mini-label">EXPENSES</div><div class="mini-value" style="color:#f87171">${fmt(e.expenses)}</div></div>${e.members>0?`<div class="mini-card"><div class="mini-label">MEMBERS</div><div class="mini-value" style="color:#60a5fa">${fmt(e.members)}</div></div>`:''}<div class="mini-card"><div class="mini-label">SALES</div><div class="mini-value" style="color:#4ade80">${fmt(e.sales)}</div></div></div></div>`).join('')}
+
+function saveExp(){const date=document.getElementById('expDate').value;const desc=document.getElementById('expDesc').value.trim();const amt=document.getElementById('expAmt').value;const editId=document.getElementById('editExpId').value;if(!date||!desc||!amt){alert('Fill all fields');return}const entry={id:editId||Date.now().toString(),date,description:desc,amount:Number(amt)};if(editId)addExpenses=addExpenses.map(e=>e.id===editId?entry:e);else addExpenses.push(entry);save();cancelExpEdit();renderExp()}
+function editExp(id){const e=addExpenses.find(x=>x.id===id);document.getElementById('editExpId').value=id;document.getElementById('expDate').value=e.date;document.getElementById('expDesc').value=e.description;document.getElementById('expAmt').value=e.amount;document.getElementById('cancelExpBtn').style.display=''}
+function deleteExp(id){addExpenses=addExpenses.filter(e=>e.id!==id);save();renderExp()}
+function cancelExpEdit(){document.getElementById('editExpId').value='';document.getElementById('expDate').value=today;document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';document.getElementById('cancelExpBtn').style.display='none'}
+function renderExp(){const sorted=[...addExpenses].sort((a,b)=>new Date(b.date)-new Date(a.date));document.getElementById('expTitle').textContent=`All Additional Expenses (${sorted.length})`;const el=document.getElementById('expList');if(!sorted.length){el.innerHTML='<div class="empty">No expenses yet</div>';return}el.innerHTML=sorted.map(e=>`<div class="card"><div class="list-item"><div><div class="list-item-name">${e.description}</div><div class="list-item-date">${fdate(e.date)}</div></div><div class="list-item-right"><div class="list-amount" style="color:#fb923c">${fmt(e.amount)}</div><button class="btn-edit" onclick="editExp('${e.id}')">Edit</button><button class="btn-del" onclick="deleteExp('${e.id}')">Delete</button></div></div></div>`).join('')}
+
+function saveInc(){const date=document.getElementById('incDate').value;const desc=document.getElementById('incDesc').value.trim();const amt=document.getElementById('incAmt').value;const editId=document.getElementById('editIncId').value;if(!date||!desc||!amt){alert('Fill all fields');return}const entry={id:editId||Date.now().toString(),date,description:desc,amount:Number(amt)};if(editId)addIncome=addIncome.map(e=>e.id===editId?entry:e);else addIncome.push(entry);save();cancelIncEdit();renderInc()}
+function editInc(id){const e=addIncome.find(x=>x.id===id);document.getElementById('editIncId').value=id;document.getElementById('incDate').value=e.date;document.getElementById('incDesc').value=e.description;document.getElementById('incAmt').value=e.amount;document.getElementById('cancelIncBtn').style.display=''}
+function deleteInc(id){addIncome=addIncome.filter(e=>e.id!==id);save();renderInc()}
+function cancelIncEdit(){document.getElementById('editIncId').value='';document.getElementById('incDate').value=today;document.getElementById('incDesc').value='';document.getElementById('incAmt').value='';document.getElementById('cancelIncBtn').style.display='none'}
+function renderInc(){const sorted=[...addIncome].sort((a,b)=>new Date(b.date)-new Date(a.date));document.getElementById('incTitle').textContent=`All Additional Income (${sorted.length})`;const el=document.getElementById('incList');if(!sorted.length){el.innerHTML='<div class="empty">No income yet</div>';return}el.innerHTML=sorted.map(e=>`<div class="card"><div class="list-item"><div><div class="list-item-name">${e.description}</div><div class="list-item-date">${fdate(e.date)}</div></div><div class="list-item-right"><div class="list-amount" style="color:#a78bfa">${fmt(e.amount)}</div><button class="btn-edit" onclick="editInc('${e.id}')">Edit</button><button class="btn-del" onclick="deleteInc('${e.id}')">Delete</button></div></div></div>`).join('')}
+
+function renderReport(){const month=Number(document.getElementById('month').value);const year=Number(document.getElementById('year').value);const filterM=arr=>arr.filter(e=>{const d=new Date(e.date+'T00:00:00');return d.getMonth()===month&&d.getFullYear()===year});const fE=filterM(entries),fExp=filterM(addExpenses),fInc=filterM(addIncome);const sales=fE.reduce((s,e)=>s+e.sales,0);const exp=fE.reduce((s,e)=>s+e.expenses,0);const mem=fE.reduce((s,e)=>s+e.members,0);const addexp=fExp.reduce((s,e)=>s+e.amount,0);const addinc=fInc.reduce((s,e)=>s+e.amount,0);const totalIncome=sales+mem+addinc;const profit=totalIncome-exp-addexp;const avg=fE.length>0?sales/fE.length:0;const pc=profit>=0?'#4ade80':'#f87171';const pb=profit>=0?'#0d2b0d':'#2b0d0d';let html=`<div class="summary-grid"><div class="summary-card"><div class="summary-icon">📊</div><div class="summary-label">Daily Sales</div><div class="summary-value" style="color:#4ade80">${fmt(sales)}</div></div>${mem>0?`<div class="summary-card"><div class="summary-icon">👥</div><div class="summary-label">Members</div><div class="summary-value" style="color:#60a5fa">${fmt(mem)}</div></div>`:''}${addinc>0?`<div class="summary-card"><div class="summary-icon">💰</div><div class="summary-label">Add. Income</div><div class="summary-value" style="color:#a78bfa">${fmt(addinc)}</div></div>`:''}<div class="summary-card"><div class="summary-icon">➕</div><div class="summary-label">Total Income</div><div class="summary-value" style="color:#4ade80">${fmt(totalIncome)}</div></div><div class="summary-card"><div class="summary-icon">📈</div><div class="summary-label">Avg Daily</div><div class="summary-value" style="color:#fbbf24">${fmt(avg)}</div></div></div><div class="summary-grid"><div class="summary-card"><div class="summary-icon">🧾</div><div class="summary-label">Daily Exp</div><div class="summary-value" style="color:#f87171">${fmt(exp)}</div></div><div class="summary-card"><div class="summary-icon">💸</div><div class="summary-label">Add. Exp</div><div class="summary-value" style="color:#fb923c">${fmt(addexp)}</div></div></div><div class="profit-box" style="background:${pb};border:2px solid ${pc}"><div class="profit-label">${MONTHS[month].toUpperCase()} ${year} NET</div><div class="profit-value" style="color:${pc}">${fmt(profit)}</div><div class="profit-formula">${fmt(totalIncome)} - ${fmt(exp)} - ${fmt(addexp)}</div></div>`;if(fE.length){html+=`<div class="section-title">Day-by-Day</div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Cash</th><th>Exp</th><th>Sales</th></tr></thead><tbody>${[...fE].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`<tr><td style="color:#c8b88a">${fdate(e.date)}</td><td>${fmt(e.totalCash)}</td><td style="color:#f87171">${fmt(e.expenses)}</td><td style="color:#4ade80;font-weight:700">${fmt(e.sales)}</td></tr>`).join('')}</tbody></table></div>`}if(fExp.length){html+=`<div class="section-title">Add. Expenses</div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Desc</th><th>Amount</th></tr></thead><tbody>${[...fExp].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`<tr><td style="color:#c8b88a">${fdate(e.date)}</td><td>${e.description}</td><td style="color:#fb923c;font-weight:700">${fmt(e.amount)}</td></tr>`).join('')}</tbody></table></div>`}if(fInc.length){html+=`<div class="section-title">Add. Income</div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Desc</th><th>Amount</th></tr></thead><tbody>${[...fInc].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`<tr><td style="color:#c8b88a">${fdate(e.date)}</td><td>${e.description}</td><td style="color:#a78bfa;font-weight:700">${fmt(e.amount)}</td></tr>`).join('')}</tbody></table></div>`}document.getElementById('report').innerHTML=html}
+
+const m=document.getElementById('month');const y=document.getElementById('year');MONTHS.forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;if(i===new Date().getMonth())o.selected=true;m.appendChild(o)});const cur=new Date().getFullYear();for(let y2=cur;y2>=cur-3;y2--){const o=document.createElement('option');o.value=y2;o.textContent=y2;if(y2===cur)o.selected=true;y.appendChild(o)}
+
+loadLocal();renderEntry();renderExp();renderInc();load().then(()=>{renderEntry();renderExp();renderInc()});setInterval(()=>{load().then(()=>{renderEntry();renderExp();renderInc()})},30000);
+</script>
+
+</body>
+</html>
